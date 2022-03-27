@@ -4,27 +4,108 @@
 #include "User.h"
 #include "UsageLog.h"
 #include "Instrument.h"
+#include "IOHelper.h"
 
 using namespace std;
 
+//prototyping
+void print_main_menu();
+void print_log(vector<UsageLog> logs);
+Instrument make_instrument();
+User make_user();
+void print_users(vector<User> users);
+void print_instruments(vector<Instrument> instruments);
+void change_user_weight(User& user);
+seconds get_usage_time();
+
+
 int main()
 {
-    vector<UsageLog> usage_log = UsageLog::load_csv();
-    vector<User> users = User::load_csv();
-    vector<Instrument> instruments = Instrument::load_csv();
+    // Make an instance
+    vector<UsageLog> usage_log{};
+    vector<User> users{};
+    vector<Instrument> instruments{};
 
-    UsageLog dummy_usage_log("Dani", 1, seconds(1));
-    Instrument dummy_instrument(1, "Running sidewalk");
-    User dummy_user("Dani", 80);
+    // Try loading from the files
+    try {
+        usage_log = UsageLog::load_csv();
+        users = User::load_csv();
+        instruments = Instrument::load_csv();
+    }
+    catch (...) {
+        //TODO make more complex error reporting
+        cout << "Couldn't load from files!\n";
+    }
 
-    usage_log.push_back(dummy_usage_log);
-    UsageLog::save_to_csv(usage_log);
+    while (true) {
+        print_main_menu();
+        int user_choise = IOHelper::get_int(true);
 
-    instruments.push_back(dummy_instrument);
-    Instrument::save_to_csv(instruments);
+        //needed variables
+        int instrument_index{};
+        int user_index{};
 
-    users.push_back(dummy_user);
-    User::save_to_csv(users);
+        switch (user_choise)
+        {
+        case 1:
+            instruments.push_back(make_instrument());
+            break;
+        case 2:
+            users.push_back(make_user());
+            break;
+        case 3:
+            // Get user
+            cout << "Please enter user index:\n";
+            print_users(users);
+            user_index = IOHelper::get_int(false);
+            if (user_index < 0 || user_index > users.size() - 1) {
+                cout << "Invalid user index!\n";
+                break;
+            }
+
+            // Get instrument
+            cout << "Please enter instrument index:\n";
+            print_instruments(instruments);
+            instrument_index = IOHelper::get_int(false);
+            if (instrument_index < 0 || instrument_index > instruments.size() - 1) {
+                cout << "Invalid instrument index!\n";
+                break;
+            }
+
+            // Use the instrument
+            seconds usage_time = get_usage_time();
+
+            // Change user weight
+            change_user_weight(users.at(user_index));
+
+            // Append to log
+            usage_log.push_back(UsageLog(users.at(user_index).get_username(), instruments.at(instrument_index).id, usage_time));
+
+            break;
+        case 4:
+            print_users(users);
+            print_instruments(instruments);
+            print_log(usage_log);
+            break;
+        case 5:
+            goto exit_state;
+        default:
+            cout << "Your choise was not understood!\n";
+            break;
+        }
+    }
+
+    exit_state:
+
+    try {
+        UsageLog::save_to_csv(usage_log);
+        Instrument::save_to_csv(instruments);
+        User::save_to_csv(users);
+    }
+    catch (...) {
+        //TODO make more complex error reporting
+        cout << "Couldn't save to files!\n";
+    }
 }
 
 void print_main_menu() {
@@ -35,4 +116,65 @@ void print_main_menu() {
     cout << "4. See info\n";
     cout << "5. Save and exit\n";
     cout << "-----------\n";
+}
+
+void print_users(vector<User> users){
+    cout << "----------\n";
+    for (int i = 0; i < users.size(); i++) {
+        cout << i << ". " << users.at(i).get_username() << ", initial weight: " << users.at(i).get_initial_weight() << ", current weight: " << users.at(i).get_current_weight() << endl;
+    }
+    cout << "----------\n";
+}
+
+void print_instruments(vector<Instrument> instruments) {
+    cout << "----------\n";
+    for (int i = 0; i < instruments.size(); i++) {
+        cout << i << ". " << instruments.at(i).name << ", id: " << instruments.at(i).id << endl;
+    }
+    cout << "----------\n";
+}
+
+void print_log(vector<UsageLog> logs) {
+    cout << "----------\n";
+    for (auto log : logs) {
+        cout << "User: " << log.username << ", Instrument ID: " << to_string(log.instrument_id) << ", Usage time: " << log.usage_time.count() << "sec\n";
+    }
+    cout << "----------\n";
+}
+
+Instrument make_instrument() {
+    cout << "Enter ID of the instrument: ";
+    int id = IOHelper::get_int(true);
+    cout << "Enter name of the instrument: ";
+    string name = IOHelper::get_string();
+
+    return Instrument(id, name);
+}
+
+User make_user() {
+    cout << "Enter username: ";
+    string username = IOHelper::get_string();
+    cout << "Enter initial weight: ";
+    float weight = IOHelper::get_float(true);
+
+    return User(username, weight);
+}
+
+void change_user_weight(User& user){
+    cout << "Current weight: " << user.get_current_weight() << endl;
+    cout << "enter new weight: ";
+    float new_weight = IOHelper::get_float(true);
+    user.set_current_weight(new_weight);
+}
+
+seconds get_usage_time() {
+    getchar(); // clear buffer
+    cout << "Press any key to start using the instrument...\n";
+    getchar();
+    steady_clock::time_point begin = steady_clock::now();
+    cout << "Press any key to stop using the instrument...\n";
+    getchar();
+    steady_clock::time_point end = steady_clock::now();
+
+    return duration_cast<seconds>(end - begin);
 }

@@ -25,10 +25,15 @@ void Instrument::save_to_csv(vector<Instrument> instruments)
 	}
 	else
 	{
-		cout << "Couldn't open \"" << USAGE_LOGS_FILE << "\"" << endl;
+		throw runtime_error("Couldn't open Instruments file!");
 	}
 }
 
+/*
+* throws:
+*	runtime_error -> file doesn't exist
+*	
+*/
 vector<Instrument> Instrument::load_csv()
 {
 	ifstream current_file;
@@ -74,7 +79,7 @@ vector<Instrument> Instrument::load_csv()
 	}
 	else
 	{
-		cout << "Couldn't open \"" << USAGE_LOGS_FILE << "\"" << endl;
+		throw runtime_error("Couldn't open Instruments file!");
 	}
 	return instruments;
 }

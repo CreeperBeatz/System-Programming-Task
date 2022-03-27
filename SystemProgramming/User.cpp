@@ -53,7 +53,7 @@ void User::save_to_csv(vector<User> users)
 	}
 	else
 	{
-		cout << "Couldn't open \"" << USAGE_LOGS_FILE << "\"" << endl;
+		throw runtime_error("Couldn't open Users file!");
 	}
 }
 
@@ -102,7 +102,7 @@ vector<User> User::load_csv()
 	}
 	else
 	{
-		cout << "Couldn't open \"" << USAGE_LOGS_FILE << "\"" << endl;
+		throw runtime_error("Couldn't open Users file!");
 	}
 	return users;
 }

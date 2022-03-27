@@ -27,7 +27,7 @@ void UsageLog::save_to_csv(vector<UsageLog> usage_logs)
 	}
 	else
 	{
-		cout << "Couldn't open \"" << USAGE_LOGS_FILE << "\"" << endl;
+		throw runtime_error("Couldn't open Usage logs file!");
 	}
 }
 
@@ -76,7 +76,7 @@ vector<UsageLog> UsageLog::load_csv()
 	}
 	else
 	{
-		cout << "Couldn't open \"" << USAGE_LOGS_FILE << "\"" << endl;
+		throw runtime_error("Couldn't open Usage logs file!");
 	}
     return usage_log;
 }
