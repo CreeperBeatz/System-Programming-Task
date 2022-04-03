@@ -37,7 +37,7 @@ float User::get_current_weight()
 	return current_weight;
 }
 
-void User::save_to_csv(vector<User> users)
+void User::save_to_csv(concurrent_vector<User> users)
 {
 	ofstream current_file;
 
@@ -57,7 +57,7 @@ void User::save_to_csv(vector<User> users)
 	}
 }
 
-vector<User> User::load_csv()
+concurrent_vector<User> User::load_csv()
 {
 	ifstream current_file;
 	string current_line{};
@@ -67,7 +67,7 @@ vector<User> User::load_csv()
 	//TODO remove hard coded if possible
 	const int num_of_vars{ 3 };
 
-	vector<User> users{};
+	concurrent_vector<User> users{};
 
 	current_file.open(USER_FILE);
 	if (current_file.is_open())
@@ -75,7 +75,7 @@ vector<User> User::load_csv()
 		while (getline(current_file, current_line))
 		{
 			//Line to store our individual values
-			vector<string> delimited_line{};
+			concurrent_vector<string> delimited_line{};
 
 			//For each record, find different values until we reach end of string
 			while ((pos = current_line.find(DELIMITER)) != string::npos)
@@ -84,7 +84,7 @@ vector<User> User::load_csv()
 				current_line.erase(0, pos + 1);
 			}
 
-			//Verify that we have enough data to create a taxi
+			//Verify that we have enough data to create a user
 			if (delimited_line.size() < num_of_vars)
 			{
 				cout << line_num << " Not enough variables, skipping to next line" << endl;

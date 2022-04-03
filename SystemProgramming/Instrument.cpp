@@ -9,7 +9,7 @@ Instrument::Instrument(int id1, string name1)
     name = name1;
 }
 
-void Instrument::save_to_csv(vector<Instrument> instruments)
+void Instrument::save_to_csv(concurrent_vector<Instrument> instruments)
 {
 	ofstream current_file;
 
@@ -34,7 +34,7 @@ void Instrument::save_to_csv(vector<Instrument> instruments)
 *	runtime_error -> file doesn't exist
 *	
 */
-vector<Instrument> Instrument::load_csv()
+concurrent_vector<Instrument> Instrument::load_csv()
 {
 	ifstream current_file;
 	string current_line{};
@@ -44,7 +44,7 @@ vector<Instrument> Instrument::load_csv()
 	//TODO remove hard coded if possible
 	const int num_of_vars{ 2 };
 
-	vector<Instrument> instruments{};
+	concurrent_vector<Instrument> instruments{};
 
 	current_file.open(INSTRUMENT_FILE);
 	if (current_file.is_open())
@@ -52,7 +52,7 @@ vector<Instrument> Instrument::load_csv()
 		while (getline(current_file, current_line))
 		{
 			//Line to store our individual values
-			vector<string> delimited_line{};
+			concurrent_vector<string> delimited_line{};
 
 			//For each record, find different values until we reach end of string
 			while ((pos = current_line.find(DELIMITER)) != string::npos)

@@ -11,7 +11,7 @@ UsageLog::UsageLog(string username1, int instrument_id1, seconds usage_time1)
     usage_time = usage_time1;
 }
 
-void UsageLog::save_to_csv(vector<UsageLog> usage_logs)
+void UsageLog::save_to_csv(concurrent_vector<UsageLog> usage_logs)
 {
 	ofstream current_file;
 
@@ -31,7 +31,7 @@ void UsageLog::save_to_csv(vector<UsageLog> usage_logs)
 	}
 }
 
-vector<UsageLog> UsageLog::load_csv()
+concurrent_vector<UsageLog> UsageLog::load_csv()
 {
 	ifstream current_file;
 	string current_line{};
@@ -41,7 +41,7 @@ vector<UsageLog> UsageLog::load_csv()
 	//TODO remove hard coded if possible
 	const int num_of_vars{ 3 };
 
-	vector<UsageLog> usage_log{};
+	concurrent_vector<UsageLog> usage_log{};
 
 	current_file.open(USAGE_LOGS_FILE);
 	if (current_file.is_open())
@@ -49,7 +49,7 @@ vector<UsageLog> UsageLog::load_csv()
 		while (getline(current_file, current_line))
 		{
 			//Line to store our individual values
-			vector<string> delimited_line{};
+			concurrent_vector<string> delimited_line{};
 
 			//For each record, find different values until we reach end of string
 			while ((pos = current_line.find(DELIMITER)) != string::npos)
